@@ -82,6 +82,7 @@ def create_embedding_layer(vocab_dict, embedding_dim, padding_idx):
 
 
 # 示例使用
+bulid_vocab_counter(DATA_DIR)
 vocab, vocab_dict = build_vocab(DATA_DIR)
 
 # 创建嵌入层

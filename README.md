@@ -10,6 +10,6 @@ Automatic generation of news summaries
 ## Data
 
 - 数据集包含了新闻的标题和正文，以及对应的摘要。
-- 词汇表存储为vocab.pkl,每条训练数据以转化为json格式,调用embbeding层即可转化为vector
+- run一次`pre_data.py`和`embbeding.py`可将，词汇表存储为vocab.pkl,每条训练数据以转化为json格式,后续调用embbeding层即可转化为vector
 
 
