@@ -1,4 +1,3 @@
-
 # DS games
 ## Brief
 
@@ -11,4 +10,4 @@ Automatic generation of news summaries
 ## Data
 
 - 数据集包含了新闻的标题和正文，以及对应的摘要。
-- 已转化为json格式
+- 每条数据已转化为json格式,词汇表存储为vocab._cnt.pkl
