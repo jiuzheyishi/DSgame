@@ -20,7 +20,7 @@ class RNNEncoderBasic(RNNEncoder):
         self.num_layers = num_layers
         self.bidirectional = bidirectional
         self.pad_token = pad_token
-        # self.dropout = nn.Dropout(dropout)
+        self.dropout = nn.Dropout(dropout)
         self.embedding = nn.Embedding(
             self.vocab_size,
             self.embed_size,
