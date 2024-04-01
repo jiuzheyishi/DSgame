@@ -7,7 +7,7 @@ from torch import optim
 import pickle as pkl
 from tqdm import tqdm
 import time
-import model.models
+import model.models as models
 
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
