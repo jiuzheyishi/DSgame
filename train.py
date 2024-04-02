@@ -15,6 +15,12 @@ EPOCHS = 10
 LEARNING_RATE = 0.01
 BATCH_SIZE = 64
 
+with open(WORD_IDX_PATH, "rb") as f:
+    w2i = pkl.load(f)
+train_iter = DataLoader(TextDataset(TRAIN_FLAG, w2i),
+                        shuffle=True, batch_size=BATCH_SIZE)
+print(next(iter(train_iter)))
+
 
 def Train(net: nn.Module, lr=LEARNING_RATE):
     """训练序列到序列模型。"""
@@ -30,11 +36,12 @@ def Train(net: nn.Module, lr=LEARNING_RATE):
         # 将数据转换为成batch的Tensor
     with open(WORD_IDX_PATH, "rb") as f:
         w2i = pkl.load(f)
-    train_iter = DataLoader(TextDataset(TRAIN_FALG, w2i),
+    # win上num_worker好像会出问题?
+    train_iter = DataLoader(TextDataset(TRAIN_FLAG, w2i),
                             shuffle=True, batch_size=BATCH_SIZE, num_workers=8)
-    val_iter = DataLoader(TextDataset(VAL_FALG, w2i),
+    val_iter = DataLoader(TextDataset(VAL_FLAG, w2i),
                           shuffle=False, batch_size=BATCH_SIZE, num_workers=4)
-    test_iter = DataLoader(TextDataset(TEST_FALG, w2i),
+    test_iter = DataLoader(TextDataset(TEST_FLAG, w2i),
                            shuffle=False, batch_size=1)
 
     net.apply(xavier_init_weights)

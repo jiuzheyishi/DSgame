@@ -10,9 +10,9 @@ UNK_NUM = 1
 BOS_NUM = 2
 EOS_NUM = 3
 # 读取数据时的标志
-TRAIN_FALG = 0
-VAL_FALG = 1
-TEST_FALG = 2
+TRAIN_FLAG = 0
+VAL_FLAG = 1
+TEST_FLAG = 2
 
 PARA_DIR = './paras'
 DATA_DIR = './datasets'
