@@ -49,3 +49,8 @@ class TextDataset(Dataset):
             return (torch.LongTensor(enc_x), enc_x_l)
         # return ：编码器输入，编码器输入有效长度，解码器输入，解码器输入有效长度，标签，标签有效长度
         return (torch.LongTensor(enc_x), enc_x_l), (torch.LongTensor(dec_x), dec_x_l), (torch.LongTensor(y), y_l)
+
+    def inverse_transform(self, x: torch.tensor):
+        '''将数字序列转换为文本'''
+        text = [self.id2word[i] for i in x]
+        return text
