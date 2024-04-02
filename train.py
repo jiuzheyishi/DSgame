@@ -27,7 +27,7 @@ def Train(net: nn.Module, lr=LEARNING_RATE):
                 if "weight" in param:
                     nn.init.xavier_uniform_(m._parameters[param])
 
-        # 将数据转换为成batch的Tensor,win平台有bug,多进程不能写在函数里
+        # 将数据转换为成batch的Tensor
     with open(WORD_IDX_PATH, "rb") as f:
         w2i = pkl.load(f)
     train_iter = DataLoader(TextDataset(TRAIN_FALG, w2i),

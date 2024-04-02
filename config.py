@@ -15,7 +15,7 @@ VAL_FALG = 1
 TEST_FALG = 2
 
 PARA_DIR = './paras'
-DATA_DIR = './datasets/new_data'
+DATA_DIR = './datasets'
 VOCAB_FREQ_PATH = os.path.join(DATA_DIR, "vocab_cnt.pkl")
 VOCAB_PATH = os.path.join(DATA_DIR, "vocab.pkl")
 WORD_IDX_PATH = os.path.join(DATA_DIR, "word2idx.pkl")
@@ -35,6 +35,14 @@ SOURCE_THRESHOLD = 1800
 SUMMARY_THRESHOLD = 550
 
 
-# 训练参数
-BATCH_SIZE = 64
-EPOCHES = 10
+# 数据清理规则
+# 顺序莫变！
+PATTERNS_ONCE = [
+    "by .*? published :.*?\. \| \..*? [0-9]+ \. ",
+    "by \. .*? \. ",
+    "-lrb- cnn -rrb- -- ",
+    "\t(.*?-lrb- .*? -rrb- -- )",
+]
+PATTERNS_ANY = [
+    "``|''"
+]

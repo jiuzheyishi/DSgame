@@ -28,7 +28,7 @@ class TextDataset(Dataset):
         source = ReadJson2List(self.path, index)
         summary = ReadJson2List(self.path, index, True)
         # 处理summary中奇怪的问题
-        summary = [i for i in summary if (i != '' and i != ' ')]
+        # summary = [i for i in summary if (i != '' and i != ' ')]
         # print(summary)
         enc_x = [self.word2id[word] if word in self.word2id.keys()
                  else UNK_NUM for word in source]
@@ -47,5 +47,5 @@ class TextDataset(Dataset):
             dec_x, dec_x_l = PaddingSeq(dec_x, SUMMARY_THRESHOLD)
         if (self.flag == TEST_FALG):
             return (torch.LongTensor(enc_x), enc_x_l)
-        # 返回值依次为：编码器输入，编码器输入有效长度，解码器输入，解码器输入有效长度，标签，标签有效长度
+        # return ：编码器输入，编码器输入有效长度，解码器输入，解码器输入有效长度，标签，标签有效长度
         return (torch.LongTensor(enc_x), enc_x_l), (torch.LongTensor(dec_x), dec_x_l), (torch.LongTensor(y), y_l)
