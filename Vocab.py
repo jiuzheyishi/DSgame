@@ -30,7 +30,7 @@ def bulid_vocab_counter(data_dir=DATA_DIR):
         all_tokens = summary_word_list + review_word_list
         vocab_counter.update([t for t in all_tokens if t != ""])
 
-    with open(os.path.join(data_dir, VOCAB_FREQ_PATH),
+    with open(VOCAB_FREQ_PATH,
               'wb') as vocab_file:
         pkl.dump(vocab_counter, vocab_file)
 
