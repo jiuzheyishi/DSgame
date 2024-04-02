@@ -39,9 +39,11 @@ SUMMARY_THRESHOLD = 550
 # 顺序莫变！
 PATTERNS_ONCE = [
     "by .*? published :.*?\. \| \..*? [0-9]+ \. ",
-    "by \. .*? \. ",
+    "by \. [^\\n\\t]*? \. ",
     "-lrb- cnn -rrb- -- ",
     "\t(.*?-lrb- .*? -rrb- -- )",
+    "updated : \. .*? \. ",
+    "published : \. .*? \. \| \. "
 ]
 PATTERNS_ANY = [
     "``|''"

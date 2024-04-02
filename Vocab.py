@@ -8,22 +8,22 @@ from config import *  # const & paras
 from utils import count_num_files
 
 
-def bulid_vocab_counter(data_dir):
+def bulid_vocab_counter(data_dir=DATA_DIR):
     '''
     统计所有词汇，建立词频表
     '''
-    split_dir = os.path.join(data_dir, "train")
+    split_dir = os.path.join(data_dir, "new_train")
     n_data = count_num_files(split_dir)
     vocab_counter = Counter()
     for i in range(n_data):
-        js = json.load(
+        js_data = json.load(
             open(os.path.join(split_dir, '{}.json'.format(i)), encoding='utf-8'))
 
-        summary = js['summary']
+        summary = js_data['summary']
         summary_text = ' '.join(summary).strip()
         summary_word_list = summary_text.strip().split(' ')
 
-        review = js['source']
+        review = js_data['text']
         review_text = ' '.join(review).strip()
         review_word_list = review_text.strip().split(' ')
 
@@ -60,4 +60,4 @@ def MakeVocab(vocab_size=VOCAB_SIZE):
 
 
 bulid_vocab_counter()
-# MakeVocab()
+MakeVocab()

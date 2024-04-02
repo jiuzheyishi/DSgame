@@ -22,6 +22,8 @@ def Preprocess(train_path=os.path.join(DATA_DIR, "train_dataset.csv"), test_path
         clean_data = []
         for i, d in tqdm(enumerate(data)):
             res = d
+            # if i == 1940:
+            #     print(d)
             for pat in PATTERNS_ONCE:
                 # 之后修改
                 if ("\t" in pat):
@@ -64,6 +66,8 @@ def Preprocess(train_path=os.path.join(DATA_DIR, "train_dataset.csv"), test_path
                             path = new_val_path
                         with open(path+str(i)+'.json', 'w+', encoding='utf-8') as f:
                             f.write(json.dumps(dict_data, ensure_ascii=False))
+                else:
+                    print('problem data:', data[i])
 
     with open(train_path, 'r', encoding='utf-8') as f:
         train_data_all = f.readlines()
