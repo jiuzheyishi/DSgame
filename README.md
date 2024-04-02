@@ -10,7 +10,7 @@ Automatic generation of news summaries
 ## Data
 
 - 数据集包含了新闻的标题和正文，以及对应的摘要。
-- run一次`pre_data.py`可将每条训练数据以转化为json格式,
+- run一次`pre_data.py`可将每条训练数据以转化为json格式,run `Vocab.py`可生成词典
 
 
 ## 1 数据处理
@@ -27,4 +27,4 @@ Automatic generation of news summaries
 
 1. GRU+RNN
 
-2. Transformer 预训练模型 
+2. Transformer+ 预训练模型 
