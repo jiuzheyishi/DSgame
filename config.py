@@ -1,3 +1,4 @@
+# get the path of the file
 import os
 
 # 特殊符号
@@ -35,8 +36,7 @@ SOURCE_THRESHOLD = 1800
 SUMMARY_THRESHOLD = 550
 
 
-# 数据清理规则
-# 顺序莫变！
+# 数据清理规则 由于有通配符所以不要用r"xxx"的形式
 PATTERNS_ONCE = [
     "by .*? published :.*?\. \| \..*? [0-9]+ \. ",
     "by \. [^\\n\\t]*? \. ",
@@ -46,5 +46,5 @@ PATTERNS_ONCE = [
     "published : \. .*? \. \| \. "
 ]
 PATTERNS_ANY = [
-    "``|''"
+    r"``|''"
 ]

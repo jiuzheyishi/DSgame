@@ -1,14 +1,18 @@
+'''
+train process, still have some problems
+'''
+import time
+import pickle as pkl
 import torch
 from torch import nn as nn
-from config import *
-from dataset import TextDataset
-from torch.utils.data import DataLoader
 from torch import optim
-import pickle as pkl
-from tqdm import tqdm
-import time
-import model.models as models
 
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+from dataset import TextDataset
+import model.models as models
+from config import *
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 EPOCHS = 10
@@ -22,13 +26,13 @@ train_iter = DataLoader(TextDataset(TRAIN_FLAG, w2i),
 print(next(iter(train_iter)))
 
 
-def Train(net: nn.Module, lr=LEARNING_RATE):
+def train(net: nn.Module, lr=LEARNING_RATE):
     """训练序列到序列模型。"""
 
     def xavier_init_weights(m):
-        if type(m) == nn.Linear:
+        if isinstance(m, nn.Linear):
             nn.init.xavier_uniform_(m.weight)
-        if type(m) == nn.GRU:
+        if isinstance(m, nn.GRU):
             for param in m._flat_weights_names:
                 if "weight" in param:
                     nn.init.xavier_uniform_(m._parameters[param])

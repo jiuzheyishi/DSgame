@@ -6,7 +6,7 @@
 - 新闻摘要自动生成 
 Automatic generation of news summaries
 - 比赛网址: https://www.datafountain.cn/competitions/541
-
+- Code format: PEP 8
 ## Data
 
 - 数据集包含了新闻的标题和正文，以及对应的摘要。

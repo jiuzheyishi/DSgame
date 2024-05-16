@@ -1,10 +1,14 @@
+"""
+@brief: Build vocab and word2idx, idx2word
+
+"""
 import json
-import re
 import os
 import pickle as pkl
 from collections import Counter
-
-from config import *  # const & paras
+from tqdm import tqdm
+from config import DATA_DIR, VOCAB_FREQ_PATH, VOCAB_SIZE, WORD_IDX_PATH, \
+    IDX_WORD_PATH, PAD_WORD, UNK_WORD, BOS_WORD, EOS_WORD
 from utils import count_num_files
 
 
@@ -15,9 +19,9 @@ def bulid_vocab_counter(data_dir=DATA_DIR):
     split_dir = os.path.join(data_dir, "new_train")
     n_data = count_num_files(split_dir)
     vocab_counter = Counter()
-    for i in range(n_data):
+    for i in tqdm(range(n_data)):
         js_data = json.load(
-            open(os.path.join(split_dir, '{}.json'.format(i)), encoding='utf-8'))
+            open(os.path.join(split_dir, f'{i}.json'), encoding='utf-8'))
 
         summary = js_data['summary']
         summary_text = ' '.join(summary).strip()
@@ -32,16 +36,17 @@ def bulid_vocab_counter(data_dir=DATA_DIR):
 
     with open(VOCAB_FREQ_PATH,
               'wb') as vocab_file:
+
         pkl.dump(vocab_counter, vocab_file)
 
 
-def MakeVocab(vocab_size=VOCAB_SIZE):
+def make_vocab(vocab_size=VOCAB_SIZE):
     '''
     建立词典,通过vocab_size设置字典大小,将常用词设置到字典即可,其他生僻词汇用'<unk>'表示
     '''
     with open(VOCAB_FREQ_PATH, "rb") as f:
         if f is None:
-            raise Exception("No vocab freq file found")
+            raise FileNotFoundError("No vocab freq file found")
         wc = pkl.load(f)
     word2idx, idx2word = {}, {}
     word2idx[PAD_WORD] = 0
@@ -59,5 +64,6 @@ def MakeVocab(vocab_size=VOCAB_SIZE):
         pkl.dump(idx2word, f)
 
 
-bulid_vocab_counter()
-MakeVocab()
+if __name__ == '__main__':
+    bulid_vocab_counter()
+    make_vocab()
