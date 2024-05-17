@@ -22,9 +22,8 @@ Automatic generation of news summaries
 + 词典生成  
 + 张量转换  
 
-## 2 模型结构 TODO
-本项目使用`pytorch`实现了模型基础结构、自定义损失函数、优化器以及模型训练、验证过程；  
+## 2 模型结构 Seq2Seq+Attention
 
-1. GRU+RNN
-
-2. Transformer+ 预训练模型 
+- Embedding: 将输入的单词转换为向量(torch)
+- Encoder: 使用序列模型对输入的文本进行编码,得到每个时刻的隐向量和最后一个时刻的结果向量
+- Decoder: 每一步解码,使用输出隐向量
