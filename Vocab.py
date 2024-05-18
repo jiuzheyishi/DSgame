@@ -49,7 +49,7 @@ def make_vocab(vocab_size=VOCAB_SIZE):
             raise FileNotFoundError("No vocab freq file found")
         wc = pkl.load(f)
     word2idx, idx2word = {}, {}
-    word2idx[PAD_WORD] = 0
+    word2idx[PAD_WORD] = 0  # PAD_IDX
     word2idx[UNK_WORD] = 1
     word2idx[BOS_WORD] = 2
     word2idx[EOS_WORD] = 3

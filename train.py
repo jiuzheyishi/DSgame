@@ -11,13 +11,15 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from dataset import TextDataset
-import model.models as models
+from .model.Transformer import EncoderDecoder, Encoder, Decoder
 from config import *
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 EPOCHS = 10
 LEARNING_RATE = 0.01
 BATCH_SIZE = 64
+
+nn.TransformerEncoder()
 
 with open(WORD_IDX_PATH, "rb") as f:
     w2i = pkl.load(f)
@@ -51,7 +53,6 @@ def train(net: nn.Module, lr=LEARNING_RATE):
     net.apply(xavier_init_weights)
     net.to(DEVICE)
     optimizer = optim.Adam(net.parameters(), lr=lr)
-    loss = models.MaskedSoftmaxCELoss()
 
     # 验证集loss降到10000以下时开始保存每轮更低的参数
     min_loss = 10000
