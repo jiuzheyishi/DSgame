@@ -24,8 +24,8 @@ WORD_IDX_PATH = os.path.join(DATA_DIR, "word2idx.pkl")
 IDX_WORD_PATH = os.path.join(DATA_DIR, "idx2word.pkl")
 
 
-# 词典大小,参考BERT的词典大小
-VOCAB_SIZE = 30522
+# 词典大小,参考BERT的词典大小30522，这里取20000
+VOCAB_SIZE = 20000
 # 最长原文序列长度
 MAX_SOURCE_LEN = 2193
 # 最长摘要序列长度
