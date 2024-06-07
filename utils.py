@@ -23,10 +23,6 @@ def get_rouge(pred, label):
 
     return rouge_l_f1 / len(rouge_score)
 
-    # print("rouge_f1:%.2f" % (rouge_L_f1 / len(rouge_score)))
-    # print("rouge_p:%.2f" % (rouge_L_p / len(rouge_score)))
-    # print("rouge_r:%.2f" % (rouge_L_r / len(rouge_score)))
-
 
 def count_num_files(path: str) -> int:
     """ count number of data in the given path"""
@@ -73,7 +69,7 @@ def padding_seq(line, threshold: int):
     """
     @brief: padding序列到固定长度
     @param line: 输入序列,threshold:最大长度
-    @return: 返回padded list, 原始长度/threshold
+    @return: 返回padded list, min(原始长度,threshold)
     """
     p_len = len(line)
     if p_len > threshold:

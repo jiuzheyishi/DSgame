@@ -4,6 +4,7 @@
 import os
 from typing import Tuple
 import torch
+from torch import Tensor
 from torch.utils.data import Dataset, DataLoader
 from config import TRAIN_FLAG, VAL_FLAG, TEST_FLAG, DATA_DIR, \
     UNK_NUM, EOS_NUM, BOS_NUM, SOURCE_THRESHOLD, SUMMARY_THRESHOLD
@@ -47,12 +48,9 @@ class TextDataset(Dataset):
     def __len__(self):
         return count_num_files(self.path)
 
-    def __getitem__(self, index: int) -> Tuple[Tuple[torch.LongTensor, int],
-                                               Tuple[torch.LongTensor, int],
-                                               Tuple[torch.LongTensor, int]]:
+    def __getitem__(self, index: int) -> Tuple[Tensor, Tensor, Tensor]:
         """
-        @return: (enc_x, enc_x_l), (dec_x, dec_x_l), (y, y_l)
-                编码器输入，编码器输入有效长度，解码器输入，解码器输入有效长度，标签，标签有效长度
+        @return: encode_x, decode_x, y
         """
         source = read_json2list(self.path, index)
         summary = read_json2list(self.path, index, True)
@@ -61,21 +59,19 @@ class TextDataset(Dataset):
         # print(summary)
         enc_x = self.tokenizer.encode(source)
         # padding
-        enc_x, enc_x_l = padding_seq(enc_x, SOURCE_THRESHOLD)
+        enc_x, _ = padding_seq(enc_x, SOURCE_THRESHOLD)
 
         if self.flag != TEST_FLAG:
             dec_x = self.tokenizer.encode(summary)
             # decoder输入前面加上BOS、decoder的label最后加上EOS
             y = list(dec_x)
             y.append(EOS_NUM)
-            y, y_l = padding_seq(y, SUMMARY_THRESHOLD)
+            y, _ = padding_seq(y, SUMMARY_THRESHOLD)
             dec_x.insert(0, BOS_NUM)
-            dec_x, dec_x_l = padding_seq(dec_x, SUMMARY_THRESHOLD)
+            dec_x, _ = padding_seq(dec_x, SUMMARY_THRESHOLD)
         if self.flag == TEST_FLAG:
-            return (torch.LongTensor(enc_x), enc_x_l), None, None
-        return (torch.LongTensor(enc_x), enc_x_l), \
-            (torch.LongTensor(dec_x), dec_x_l), \
-            (torch.LongTensor(y), y_l)
+            return torch.Tensor(enc_x), None, None
+        return torch.Tensor(enc_x), torch.Tensor(dec_x), torch.Tensor(y)
 
 
 if __name__ == "__main__":
@@ -95,5 +91,5 @@ if __name__ == "__main__":
     test_loader = DataLoader(
         test_dataset, batch_size=batch_size, shuffle=False)
     print(len(train_loader), len(val_loader), len(test_loader))
-    (enc_x, enc_x_l) = next(iter(train_loader))[0]
+    enc_x= next(iter(train_loader))[0]
     print(enc_x.shape)
