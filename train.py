@@ -100,7 +100,7 @@ def train(
     start_time = time.time()
     for epoch in range(max_epochs):
         running_loss = 0
-        for i, (enc_x, dec_x, y) in enumerate(train_loader):
+        for i, (enc_x, dec_x, y) in tqdm(enumerate(train_loader), total=len(train_loader)):
             # x: (batch_size, seq_len), y: (batch_size, seq_len)
             enc_x, dec_x, y = enc_x.to(device), dec_x.to(device), y.to(device)
             src_mask = None
@@ -115,7 +115,7 @@ def train(
             running_loss += loss
         train_loss = running_loss / (i + 1)
         val_running_loss = 0
-        for i, (enc_x, dec_x, y) in enumerate(val_loader):
+        for i, (enc_x, dec_x, y) in tqdm(enumerate(val_loader), total=len(val_loader)):
             enc_x, dec_x, y = enc_x.to(device), dec_x.to(device), y.to(device)
             src_mask = None
             tgt_mask = TransformerMasking._generate_square_subsequent_mask(
