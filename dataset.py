@@ -54,11 +54,9 @@ class TextDataset(Dataset):
         """
         source = read_json2list(self.path, index)
         summary = read_json2list(self.path, index, True)
-        # 处理summary中奇怪的问题 ?
-        # summary = [i for i in summary if (i != '' and i != ' ')]
-        # print(summary)
+
         enc_x = self.tokenizer.encode(source)
-        # padding
+
         enc_x, _ = padding_seq(enc_x, SOURCE_THRESHOLD)
 
         if self.flag != TEST_FLAG:
@@ -91,5 +89,5 @@ if __name__ == "__main__":
     test_loader = DataLoader(
         test_dataset, batch_size=batch_size, shuffle=False)
     print(len(train_loader), len(val_loader), len(test_loader))
-    enc_x= next(iter(train_loader))[0]
-    print(enc_x.shape)
+    enc_x = next(iter(train_loader))[0]
+    print(enc_x.shape)  # [batch_size, seq_len]
