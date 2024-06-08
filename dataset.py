@@ -2,7 +2,7 @@
 @brief: 生成TensorDataset
 """
 import os
-from typing import Tuple
+from typing import Tuple, List
 import torch
 from torch import Tensor
 from torch.utils.data import Dataset, DataLoader
@@ -18,12 +18,12 @@ class Tokenizer:
         self.word2id = word2id
         self.id2word = id2word
 
-    def encode(self, text: str):
+    def encode(self, text: str) -> List[int]:
         '''编码'''
         return [self.word2id[word] if word in self.word2id.keys()
                 else UNK_NUM for word in text]
 
-    def decode(self, tokens: list):
+    def decode(self, tokens: list) -> List[str]:
         '''解码'''
         return [self.id2word[token] for token in tokens]
 
@@ -69,7 +69,7 @@ class TextDataset(Dataset):
             dec_x, _ = padding_seq(dec_x, SUMMARY_THRESHOLD)
         if self.flag == TEST_FLAG:
             return torch.Tensor(enc_x), None, None
-        return torch.Tensor(enc_x), torch.Tensor(dec_x), torch.Tensor(y)
+        return torch.Tensor(enc_x).int(), torch.Tensor(dec_x).int(), torch.Tensor(y).int()
 
 
 if __name__ == "__main__":

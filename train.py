@@ -184,8 +184,8 @@ if __name__ == "__main__":
     test_loader = DataLoader(
         test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
-    model = TransformerModel(n_token=VOCAB_SIZE, d_model=256, nhead=8,
-                             num_encoder_layers=6, num_decoder_layers=6, dim_feedforward=512).to(DEVICE)
+    model = TransformerModel(n_token=VOCAB_SIZE, d_model=128, n_head=8,
+                             encoder_layers=4, decoder_layers=4, n_hid=512).to(DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     history = train(model, train_loader, val_loader, optimizer, device=DEVICE,
                     max_epochs=5, early_stopping=3, print_every=1, save_dir=PARA_DIR)

@@ -4,9 +4,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from mask import TransformerMasking
-# Temporarily leave PositionalEncoding module here. Will be moved somewhere else.
-
 
 class PositionalEncoding(nn.Module):
     r"""Inject some information about the relative or absolute position of the tokens in the sequence.
@@ -29,7 +26,7 @@ class PositionalEncoding(nn.Module):
         >>> pos_encoder = PositionalEncoding(d_model)
     """
 
-    def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 5000, batch_first: bool = False):
+    def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 5000, batch_first: bool = True):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(p=dropout)
         self.batch_first = batch_first
@@ -40,8 +37,8 @@ class PositionalEncoding(nn.Module):
             0, d_model, 2).float() * (-math.log(10000.0) / d_model))
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0)
-        if batch_first:
+        pe = pe.unsqueeze(0)  # [1, max_len, d_model]
+        if not batch_first:
             pe = pe.transpose(0, 1)
         self.register_buffer('pe', pe)
 
@@ -56,9 +53,11 @@ class PositionalEncoding(nn.Module):
             >>> output = pos_encoder(x)
         """
         if self.batch_first:
-            x = x + self.pe[:x.size(1), :]
+            x += self.pe[:, :x.size(1), :]
         else:
-            x = x + self.pe[:x.size(0), :]
+            x = x.transpose(0, 1)
+            x += self.pe[:, :x.size(0), :]
+            x = x.transpose(0, 1)
         return self.dropout(x)
 
 
@@ -75,15 +74,18 @@ class TransformerModel(nn.Transformer):
                                                activation=F.gelu, dropout=dropout, batch_first=batch_first)
 
         self.input_emb = nn.Embedding(n_token, d_model)
-        self.pos_encoding = PositionalEncoding(d_model, dropout)
+        self.pos_encoding = PositionalEncoding(
+            d_model, dropout, batch_first=batch_first)
         self.to_out = nn.Sequential(nn.Linear(d_model, n_token),
                                     nn.LogSoftmax(dim=-1))
 
     def forward(self, src: torch.Tensor, tgt: torch.Tensor,
                 src_mask: torch.Tensor, tgt_mask: torch.Tensor,
                 src_key_padding_mask=None, tgt_key_padding_mask=None):
-        src = self.pos_encoding(self.input_emb(src))
-        tgt = self.pos_encoding(self.input_emb(tgt))
+        src = self.input_emb(src)
+        src = self.pos_encoding(src)
+        tgt = self.input_emb(tgt)
+        tgt = self.pos_encoding(tgt)
         output = super(TransformerModel, self).forward(src=src, tgt=tgt,
                                                        src_mask=src_mask, tgt_mask=tgt_mask,
                                                        src_key_padding_mask=src_key_padding_mask,
