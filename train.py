@@ -192,3 +192,9 @@ if __name__ == "__main__":
 
     generated_summaries = generate(
         test_loader, model, model_path=PARA_DIR + "model.pth")
+    result_path = os.path.join(RESULT_DIR, "result.csv")
+    for idx, summary in enumerate(generated_summaries):
+        # summary: [batch_size, seq_len]
+        summary_str = tokenizer.decode(summary)
+        with open(result_path, "a") as f:
+            f.write(f"{idx} {summary_str}\n")

@@ -18,6 +18,7 @@ TEST_FLAG = 2
 
 PARA_DIR = './paras'
 DATA_DIR = './datasets'
+RESULT_DIR = './results'
 VOCAB_FREQ_PATH = os.path.join(DATA_DIR, "vocab_cnt.pkl")
 VOCAB_PATH = os.path.join(DATA_DIR, "vocab.pkl")
 WORD_IDX_PATH = os.path.join(DATA_DIR, "word2idx.pkl")
