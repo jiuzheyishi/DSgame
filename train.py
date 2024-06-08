@@ -19,13 +19,16 @@ from model.mask import TransformerMasking
 from config import *
 from utils import get_rouge
 
+
+LossFn = Callable[[Tensor, Tensor], Tensor]
+
+
 # Hyperparameters
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("cpu")
 EPOCHS = 10
 LEARNING_RATE = 1e-3
 BATCH_SIZE = 64
-
-LossFn = Callable[[Tensor, Tensor], Tensor]
 
 
 class HistoryDict(TypedDict):
@@ -45,7 +48,12 @@ def train_step(
     optimizer.zero_grad()
     logits = model(enc_x, dec_x, src_mask, tgt_mask,
                    src_padding_mask, tgt_padding_mask)
-    loss = loss_fn(logits.view(-1, logits.size(-1)), y.view(-1))
+    # (batch_size * seq_len, n_token)
+    logits = logits.view(-1, logits.size(-1))
+    y = y.view(-1).long()  # (batch_size * seq_len)
+    # 将y转化为one-hot编码
+    y = nn.functional.one_hot(y, num_classes=logits.size(-1)).float()
+    loss = loss_fn(logits, y)
     loss.backward()
     optimizer.step()
     return loss.item()
@@ -62,7 +70,12 @@ def val_step(
     model.eval()
     logits = model(enc_x, dec_x, src_mask, tgt_mask,
                    src_padding_mask, tgt_padding_mask)
-    loss = loss_fn(logits.view(-1, logits.size(-1)), y.view(-1))
+    # (batch_size * seq_len, n_token)
+    logits = logits.view(-1, logits.size(-1))
+    y = y.view(-1).long()
+    # 将y转化为one-hot编码
+    y = nn.functional.one_hot(y, num_classes=logits.size(-1)).float()
+    loss = loss_fn(logits, y)
     return loss.item()
 
 
@@ -128,6 +141,7 @@ def train(
             print(f"---Epoch {epoch+1}/{max_epochs}")
             print(
                 f"Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
+        torch.cuda.empty_cache()
 
     end_time = time.time()
     if verbose:
@@ -168,6 +182,16 @@ def generate(
     return generated_summaries
 
 
+def plot_loss(history: HistoryDict):
+    import matplotlib.pyplot as plt
+    plt.plot(history["train_loss"], label="Train Loss")
+    plt.plot(history["val_loss"], label="Val Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.legend()
+    plt.show()
+
+
 if __name__ == "__main__":
     with open(os.path.join(DATA_DIR, "word2idx.pkl"), "rb") as f:
         word2idx = pkl.load(f)
@@ -184,8 +208,8 @@ if __name__ == "__main__":
     test_loader = DataLoader(
         test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
-    model = TransformerModel(n_token=VOCAB_SIZE, d_model=128, n_head=8,
-                             encoder_layers=4, decoder_layers=4, n_hid=512).to(DEVICE)
+    model = TransformerModel(n_token=VOCAB_SIZE, d_model=32, n_head=8,
+                             encoder_layers=1, decoder_layers=1, n_hid=32).to(DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     history = train(model, train_loader, val_loader, optimizer, device=DEVICE,
                     max_epochs=5, early_stopping=3, print_every=1, save_dir=PARA_DIR)
@@ -198,3 +222,5 @@ if __name__ == "__main__":
         summary_str = tokenizer.decode(summary)
         with open(result_path, "a") as f:
             f.write(f"{idx} {summary_str}\n")
+
+    plot_loss(history)

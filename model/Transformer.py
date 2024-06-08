@@ -77,11 +77,20 @@ class TransformerModel(nn.Transformer):
         self.pos_encoding = PositionalEncoding(
             d_model, dropout, batch_first=batch_first)
         self.to_out = nn.Sequential(nn.Linear(d_model, n_token),
-                                    nn.LogSoftmax(dim=-1))
+                                    nn.Softmax(dim=-1))
 
     def forward(self, src: torch.Tensor, tgt: torch.Tensor,
                 src_mask: torch.Tensor, tgt_mask: torch.Tensor,
                 src_key_padding_mask=None, tgt_key_padding_mask=None):
+        """ 
+        src: torch.Tensor, shape [batch_size, seq_len]
+        tgt: torch.Tensor, shape [batch_size, seq_len]
+        src_mask: torch.Tensor, shape [seq_len, seq_len]
+        tgt_mask: torch.Tensor, shape [seq_len, seq_len]
+        src_key_padding_mask: torch.Tensor, shape [batch_size, seq_len]
+        tgt_key_padding_mask: torch.Tensor, shape [batch_size, seq_len]
+        return: torch.Tensor, shape [batch_size, seq_len, n_token] 表示每个位置的预测概率
+        """
         src = self.input_emb(src)
         src = self.pos_encoding(src)
         tgt = self.input_emb(tgt)
@@ -92,28 +101,6 @@ class TransformerModel(nn.Transformer):
                                                        tgt_key_padding_mask=tgt_key_padding_mask)
         output = self.to_out(output)
         return output
-
-    def lookup(self, x: torch.Tensor):
-        """
-        Embedding反向lookup，使用余弦相似度。
-        x: torch.Tensor, shape [batch_size, seq_len, d_model]
-        return: torch.Tensor, shape [batch_size, seq_len]
-        """
-        embeddings = self.input_emb.weight   # shape: [n_token, d_model]
-        # 归一化
-        x_norm = F.normalize(x, p=2, dim=-1)  # [batch_size, seq_len, d_model]
-        embeddings_norm = F.normalize(
-            embeddings, p=2, dim=-1)  # [n_token, d_model]
-
-        # 计算余弦相似度
-        # [batch_size, seq_len, n_token]
-        cos_sim = torch.matmul(x_norm, embeddings_norm.transpose(0, 1))
-
-        # 找到相似度最高的token ids
-        _, top_indices = cos_sim.topk(1, dim=-1)  # [batch_size, seq_len, 1]
-
-        return top_indices.squeeze(-1)
-        ...
 
     def generate(self, src: torch.Tensor, generate_len: int, src_mask: torch.Tensor, *,
                  src_key_padding_mask=None) -> torch.Tensor:
@@ -139,7 +126,6 @@ class TransformerModel(nn.Transformer):
             next_token = next_token_logits.argmax(dim=-1, keepdim=True)
             generated = torch.cat(
                 [generated, next_token.unsqueeze(-1)], dim=-1)
-
         return generated
 
     def beam_search(self, src: torch.Tensor, src_mask: torch.Tensor, max_len: int, beam_size: int = 3):
