@@ -26,6 +26,7 @@ LossFn = Callable[[Tensor, Tensor], Tensor]
 # Hyperparameters
 # DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 DEVICE = torch.device("cpu")
+
 EPOCHS = 10
 LEARNING_RATE = 1e-3
 BATCH_SIZE = 64
@@ -126,7 +127,7 @@ def train(
                 dec_x, PAD_NUM).to(device)
 
             loss = val_step(
-                model, enc_x, dec_x, y, src_mask, tgt_mask, src_padding_mask, tgt_padding_mask, optimizer, loss_fn)
+                model, enc_x, dec_x, y, src_mask, tgt_mask, src_padding_mask, tgt_padding_mask, loss_fn)
             val_running_loss += loss
         val_loss = val_running_loss / (i + 1)
         history["train_loss"].append(train_loss)
@@ -164,21 +165,21 @@ def generate(
         generate_len: int = SUMMARY_THRESHOLD,
         *,
         device: torch.device = DEVICE,
-        model_path: str = None,
 ) -> List[str]:
-    if model_path is not None:
-        model.load_state_dict(torch.load(model_path))
+
     model.eval()
     generated_summaries = []
-    for i, (enc_x, _, _) in enumerate(test_loader):
+    for i, enc_x in enumerate(test_loader):
         enc_x = enc_x.to(device)
         src_mask = None
         src_padding_mask = TransformerMasking._generate_padding_mask(
             enc_x, PAD_NUM).to(device)
 
         generated = model.generate(
-            enc_x, src_mask, generate_len, src_key_padding_mask=src_padding_mask)
-        generated_summaries.append(model.lookup(generated))
+            src=enc_x, src_mask=src_mask,
+            generate_len=generate_len,
+            src_key_padding_mask=src_padding_mask)  # shape: (batch_size, seq_len)
+        generated_summaries.append(generated.reshape(-1).tolist())
     return generated_summaries
 
 
@@ -208,17 +209,27 @@ if __name__ == "__main__":
     test_loader = DataLoader(
         test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
-    model = TransformerModel(n_token=VOCAB_SIZE, d_model=32, n_head=8,
-                             encoder_layers=1, decoder_layers=1, n_hid=32).to(DEVICE)
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    history = train(model, train_loader, val_loader, optimizer, device=DEVICE,
-                    max_epochs=5, early_stopping=3, print_every=1, save_dir=PARA_DIR)
+    model = TransformerModel(n_token=VOCAB_SIZE, d_model=128, n_head=8,
+                             encoder_layers=4, decoder_layers=4, n_hid=256).to(DEVICE)
+    OUT_DIR = "./output"
+    model_path = os.path.join(OUT_DIR, "model.pth")
+    if os.path.exists(model_path):
+        model.load_state_dict(torch.load(model_path))
+        history_path = os.path.join(OUT_DIR, "history.pkl")
+        with open(history_path, "rb") as f:
+            history = pkl.load(f)
+    else:
+        optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+        history = train(model, train_loader, val_loader, optimizer, device=DEVICE,
+                        max_epochs=5, early_stopping=3, print_every=1, save_dir=OUT_DIR)
+        # 存储history
+        with open(OUT_DIR + "history.pkl", "wb") as f:
+            pkl.dump(history, f)
 
     generated_summaries = generate(
-        test_loader, model, model_path=PARA_DIR + "model.pth")
+        test_loader=test_loader, model=model)
     result_path = os.path.join(RESULT_DIR, "result.csv")
     for idx, summary in enumerate(generated_summaries):
-        # summary: [batch_size, seq_len]
         summary_str = tokenizer.decode(summary)
         with open(result_path, "a") as f:
             f.write(f"{idx} {summary_str}\n")

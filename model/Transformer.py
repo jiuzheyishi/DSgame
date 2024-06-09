@@ -82,7 +82,7 @@ class TransformerModel(nn.Transformer):
     def forward(self, src: torch.Tensor, tgt: torch.Tensor,
                 src_mask: torch.Tensor, tgt_mask: torch.Tensor,
                 src_key_padding_mask=None, tgt_key_padding_mask=None):
-        """ 
+        """
         src: torch.Tensor, shape [batch_size, seq_len]
         tgt: torch.Tensor, shape [batch_size, seq_len]
         src_mask: torch.Tensor, shape [seq_len, seq_len]
@@ -102,7 +102,7 @@ class TransformerModel(nn.Transformer):
         output = self.to_out(output)
         return output
 
-    def generate(self, src: torch.Tensor, generate_len: int, src_mask: torch.Tensor, *,
+    def generate(self, src: torch.Tensor, src_mask: torch.Tensor, generate_len: int, *,
                  src_key_padding_mask=None) -> torch.Tensor:
         """
         Generate a sequence of length generate_len. Greedy decoding is used.
@@ -114,19 +114,26 @@ class TransformerModel(nn.Transformer):
         Return:
             torch.Tensor, shape [batch_size, seq_len + generate_len]
         """
-        generated = src
-        for _ in range(generate_len):
-            output = super(TransformerModel, self).forward(src=generated, tgt=generated,
-                                                           src_mask=src_mask, tgt_mask=None,
-                                                           src_key_padding_mask=src_key_padding_mask,
-                                                           tgt_key_padding_mask=None)
-            output = self.to_out(output)
+
+        batch_size = src.size(0)
+        tgt = torch.zeros(batch_size, generate_len).long().to(src.device)
+        tgt_mask = self.generate_square_subsequent_mask(
+            generate_len).to(src.device)
+
+        for i in range(generate_len):
+            tgt_padding_mask = torch.zeros(
+                batch_size, generate_len).to(src.device).bool().to(src.device)
+            tgt_padding_mask[:, i] = False
+            output = self.forward(src=src, tgt=tgt, src_mask=src_mask, tgt_mask=tgt_mask,
+                                  src_key_padding_mask=src_key_padding_mask,
+                                  tgt_key_padding_mask=tgt_padding_mask)
             # 取最后一个时间步的预测结果，用于下一次的生成
-            next_token_logits = output[:, -1, :]
-            next_token = next_token_logits.argmax(dim=-1, keepdim=True)
-            generated = torch.cat(
-                [generated, next_token.unsqueeze(-1)], dim=-1)
-        return generated
+            next_token_logits = output[:, -1, :]  # [batch_size, n_token]
+            next_token_id = torch.argmax(
+                next_token_logits, dim=-1)  # [batch_size]
+            tgt[:, i] = next_token_id
+
+        return tgt
 
     def beam_search(self, src: torch.Tensor, src_mask: torch.Tensor, max_len: int, beam_size: int = 3):
         """

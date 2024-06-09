@@ -2,7 +2,7 @@
 @brief: 生成TensorDataset
 """
 import os
-from typing import Tuple, List
+from typing import Tuple, List, Union
 import torch
 from torch import Tensor
 from torch.utils.data import Dataset, DataLoader
@@ -48,7 +48,7 @@ class TextDataset(Dataset):
     def __len__(self):
         return count_num_files(self.path)
 
-    def __getitem__(self, index: int) -> Tuple[Tensor, Tensor, Tensor]:
+    def __getitem__(self, index: int) -> Union[Tuple[Tensor, Tensor, Tensor], Tensor]:
         """
         @return: encode_x, decode_x, y
         """
@@ -68,7 +68,7 @@ class TextDataset(Dataset):
             dec_x.insert(0, BOS_NUM)
             dec_x, _ = padding_seq(dec_x, SUMMARY_THRESHOLD)
         if self.flag == TEST_FLAG:
-            return torch.Tensor(enc_x), None, None
+            return torch.Tensor(enc_x).int()
         return torch.Tensor(enc_x).int(), torch.Tensor(dec_x).int(), torch.Tensor(y).int()
 
 

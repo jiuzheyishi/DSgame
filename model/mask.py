@@ -29,12 +29,13 @@ if __name__ == "__main__":
     # Example usage
     size = 4  # example sequence length for the Look-Ahead Mask
 
-    batch_size = 1  # example batch size
+    batch_size = 2  # example batch size
     seq_len = 10  # example sequence length
     pad_idx = 0  # example padding index
 
     # Example tensor for generating padding mask
-    x_example = torch.tensor([[1, 2, 3, 0, 0, 0, 0, 0, 0, 0]])
+    x_example = torch.tensor([[1, 2, 3, 0, 0, 0, 0, 0, 0, 0],
+                              [4, 5, 6, 7, 8, 9, 10, 0, 0, 0]])
     print(x_example.shape)
     look_ahead_mask = TransformerMasking._generate_square_subsequent_mask(size)
     padding_mask = TransformerMasking._generate_padding_mask(
