@@ -25,5 +25,5 @@ Automatic generation of news summaries
 ## 2 模型结构 Seq2Seq+Attention
 
 - Embedding: 将输入的单词转换为向量(torch)
-- Encoder: 使用序列模型对输入的文本进行编码,得到每个时刻的隐向量和最后一个时刻的结果向量
-- Decoder: 每一步解码,使用输出隐向量
+- Encoder: 使用序列模型对输入的文本进行编码,得到每个时刻的隐向量和最后一个时刻的结果向量,具体来说是embedding后的输入文本
+- Decoder: 每一步解码,使用输出隐向量,input:摘要的embedding,output:上一步的输出和上一步的隐向量

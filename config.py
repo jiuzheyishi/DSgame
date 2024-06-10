@@ -18,14 +18,15 @@ TEST_FLAG = 2
 
 PARA_DIR = './paras'
 DATA_DIR = './datasets'
+RESULT_DIR = './results'
 VOCAB_FREQ_PATH = os.path.join(DATA_DIR, "vocab_cnt.pkl")
 VOCAB_PATH = os.path.join(DATA_DIR, "vocab.pkl")
 WORD_IDX_PATH = os.path.join(DATA_DIR, "word2idx.pkl")
 IDX_WORD_PATH = os.path.join(DATA_DIR, "idx2word.pkl")
 
 
-# 词典大小,参考BERT的词典大小
-VOCAB_SIZE = 30522
+# 词典大小,参考BERT的词典大小30522，这里取20000
+VOCAB_SIZE = 20000
 # 最长原文序列长度
 MAX_SOURCE_LEN = 2193
 # 最长摘要序列长度

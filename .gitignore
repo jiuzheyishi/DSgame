@@ -3,3 +3,7 @@ test*
 .*
 *.csv
 __*
+*.zip
+*.pth
+*.npz
+*.pkl
